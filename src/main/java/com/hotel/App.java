@@ -107,10 +107,31 @@ public class App {
     }
 
     /**
-     * Processa l'opció seleccionada per l'usuari i crida el mètode corresponent.
+     * Processa l'opció seleccionada per l'usuari i crida el mètode corresponent. Ús de switch.
      */
     public static void gestionarOpcio(int opcio) {
-       //TODO:
+       switch (opcio) {
+        case 1:
+            reservarHabitacio();
+            break;
+        case 2:
+            alliberarHabitacio();
+            break;
+        case 3:
+            consultarDisponibilitat();
+            break;
+        case 4:
+            obtindreReservaPerTipus();
+            break;
+        case 5:
+            obtindreReserva();
+            break;
+        case 6:
+            // Eixir del programa (no fem res ací, s´encarrega el dowhile)
+            break;
+        default:
+            System.out.println("Opció no vàlida. Seleccione una opció del 1 al 6.");
+        }
     }
 
     /**
