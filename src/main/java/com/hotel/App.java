@@ -139,13 +139,76 @@ public class App {
      * serveis addicionals, càlcul del preu total i generació del codi de reserva.
      */
     public static void reservarHabitacio() {
-        String tipus = seleccionarTipusHabitacio();
+        System.out.println("\n===== RESERVAR HABITACIÓ =====");
+        /*  1. Tipus d'habitació disponible */
+        String tipus = seleccionarTipusHabitacioDisponible();
             if (tipus == null) {
              System.out.println("No hi ha disponibilitat del tipus seleccionat.");
             return;
         }
 
         System.out.println("Has seleccionat: " + tipus);
+
+        // 2. Serveis addicionals
+        ArrayList<String> serveis = seleccionarServeis(); /*retorna un ArrayList<String> amb els serveis triats*/
+
+        // 3. Càlcul del preu
+        System.out.println("\nCalculem el total...\n");
+
+        float preuHabitacio = preusHabitacions.get(tipus); /* Agafem el preu base de l'habitació des del HashMap */
+        System.out.println("Preu habitació: " + preuHabitacio + "€");
+
+        float subtotal = preuHabitacio; /*  El subtotal comença sent el preu de l'habitació */
+
+        /*  Si l'usuari ha triat algun servei addicional */
+        if (!serveis.isEmpty()) { 
+        System.out.print("Serveis: ");
+        /*  Recorrem la llista de serveis seleccionats */
+        for (int i = 0; i < serveis.size(); i++) {
+            String servei = serveis.get(i); /*  Nom del servei */
+            float preuServei = preusServeis.get(servei); /* Preu del servei (del HashMap) */
+            subtotal += preuServei; /* Sumem el preu del servei al subtotal */
+
+            System.out.print(servei + " (" + preuServei + "€)"); /*  Mostrem el servei i el seu preu */
+            /* Per a posar comes entre serveis (menys l'últim) */ 
+            if (i < serveis.size() - 1) {
+                System.out.print(", ");
+            }
+        }
+        System.out.println();
+    } else {
+        System.out.println("Serveis no seleccionat");
+    }
+
+        System.out.println("\nSubtotal: " + subtotal + "€"); /*  Mostrem el subtotal sense IVA */
+
+        float iva = subtotal * IVA; /* Calculem l'IVA (21%) */
+        System.out.println("IVA (21%): " + iva + "€");
+
+        float total = subtotal + iva; /* Total final amb IVA */
+        System.out.println("TOTAL: " + total + "€");
+
+        /*  4. Generar codi únic de tres xifres que no estiga repetit */
+        int codi = generarCodiReserva();
+
+        /* 5. Guardar reserva */
+        /*  Crea un ArrayList amb la informació de la reserva */
+        ArrayList<String> infoReserva = new ArrayList<>();
+        infoReserva.add(tipus); /*  Posició 0 → tipus d'habitació */
+        infoReserva.add(String.valueOf(total));/* Posicions següents → serveis */
+        for (String servei : serveis) {
+        infoReserva.add(servei);
+        }
+
+        reserves.put(codi, infoReserva); /* Afegim la reserva al HashMap (codi → informació) */
+
+        /* 6. Actualitzar disponibilitat */
+        int disponibles = disponibilitatHabitacions.get(tipus);
+        disponibilitatHabitacions.put(tipus, disponibles - 1);
+
+        /* 7. Missatge final */
+        System.out.println("\nReserva creada amb èxit!");
+        System.out.println("Codi de reserva: " + codi);
     }
 
     /**
@@ -155,7 +218,7 @@ public class App {
     public static String seleccionarTipusHabitacio() {
         int op;
         do {
-            System.out.println("\nPer favor, tria el tipus d’habitació (1-3):");
+            System.out.println("\nPer favor, tria el tipus d´habitació (1-3):");
             System.out.println("1. " + TIPUS_ESTANDARD);
             System.out.println("2. " + TIPUS_SUITE);
             System.out.println("3. " + TIPUS_DELUXE);
@@ -180,7 +243,7 @@ public class App {
      * habitacions disponibles. En cas contrari, retorna null.
      */
     public static String seleccionarTipusHabitacioDisponible() {
-        System.out.println("\nTipus d'habitació disponibles:");
+        System.out.println("\nTipus d´habitació disponibles:");
 
         /* Crida al metode implementat de mostrarInfoTipus */
 
@@ -265,8 +328,18 @@ public class App {
      * (entre 100 i 999) que no estiga repetit.
      */
     public static int generarCodiReserva() {
-        /*TODO*/
-        return 0;
+        
+    int codi;
+
+    do {
+        /*  Genera un número aleatori entre 100 i 999 (3 xifres) */
+        codi = random.nextInt(900) + 100;
+
+       
+    } while (reserves.containsKey(codi));  /* Repetim mentre el codi ja existisca */ 
+
+    // Retornem un codi que sabem que és únic
+    return codi;
     }
 
     /**
