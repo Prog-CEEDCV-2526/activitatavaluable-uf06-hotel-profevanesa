@@ -413,16 +413,19 @@ public class App {
         if (codis.length == 0) {
             return;
         }
+        
+        /* Agafem el primer codi del vector */
+        int codiPrimer = codis[0];
 
         /* Si el codi existeix (per seguretat) */
-        if (reserves.containsKey(codiActual)) {
+        if (reserves.containsKey(codiPrimer)) {
 
             /*  El tipus està guardat en la posició 0 de la reserva */
-            String tipusReserva = reserves.get(codiActual).get(0);
+            String tipusReserva = reserves.get(codiPrimer).get(0);
 
             /* només mostrem si coincideix amb el tipus demanat*/
             if (tipusReserva.equals(tipus)) {
-                mostrarDadesReserva(codiActual);
+                mostrarDadesReserva(codiPrimer);
             }
          }
 
