@@ -156,7 +156,7 @@ public class App {
         System.out.println("\nCalculem el total...\n");
 
         float preuHabitacio = preusHabitacions.get(tipus); /* Agafem el preu base de l'habitació des del HashMap */
-        System.out.println("Preu habitació: " + preuHabitacio + " EUR");
+        System.out.println("Preu habitació: " + preuHabitacio + " EUR"); /*escric EUR ací i en totes perqué segon he investigat la terminal no em llig € i tampoc en unicode */
 
         float subtotal = preuHabitacio; /*  El subtotal comença sent el preu de l'habitació */
 
@@ -180,12 +180,13 @@ public class App {
         System.out.println("Serveis no seleccionat");
     }
 
-        System.out.println("\nSubtotal: " + subtotal + " EUR"); /*  Mostrem el subtotal sense IVA */
+        System.out.println("\nSubtotal: " + subtotal + " EUR"); /*  Mostrem el subtotal sense IVA per a
+         mostrar el detall a l’usuari, però el total final es calcula en el mètode específic que demana l’enunciat*/
 
         float iva = subtotal * IVA; /* Calculem l'IVA (21%) */
         System.out.println("IVA (21%): " + iva + " EUR");
 
-        float total = subtotal + iva; /* Total final amb IVA */
+        float total = calcularPreuTotal(tipus, serveis); /* cridem al métode que crida Total final amb IVA */
         System.out.println("TOTAL: " + total + " EUR");
 
         /*  4. Generar codi únic de tres xifres que no estiga repetit */
@@ -319,9 +320,20 @@ public class App {
      * els serveis seleccionats i l'IVA.
      */
     public static float calcularPreuTotal(String tipusHabitacio, ArrayList<String> serveisSeleccionats) {
-        /*TODO:*/
-        return 0;
+
+    /*  Subtotal = preu base de l'habitació */
+    float subtotal = preusHabitacions.get(tipusHabitacio);
+
+    /* Afegim el preu de cada servei seleccionat */
+    for (String servei : serveisSeleccionats) {
+        subtotal += preusServeis.get(servei);
     }
+
+    /* Total amb IVA */
+    float total = subtotal * (1 + IVA);
+    return total;
+    }
+
 
     /**
      * Genera i retorna un codi de reserva únic de tres xifres
@@ -395,7 +407,24 @@ public class App {
      * associades a un tipus d'habitació.
      */
     public static void llistarReservesPerTipus(int[] codis, String tipus) {
-         /*  TODO: Implementar recursivitat*/
+         /* Implementar recursivitat*/
+
+        // si no queden codis, acabem
+        if (codis.length == 0) {
+            return;
+        }
+
+        /* Mostrem la reserva del primer codi */
+        mostrarDadesReserva(codis[0]);
+
+        /* Creem un nou array sense el primer element */
+        int[] restaElements = new int[codis.length - 1];
+        for (int i = 1; i < codis.length; i++) {
+            restaElements[i - 1] = codis[i];
+        }
+
+        /* Crida recursiva amb la resta de codis */
+        llistarReservesPerTipus(restaElements, tipus);
     }
 
     /**
@@ -425,14 +454,83 @@ public class App {
      */
     public static void obtindreReservaPerTipus() {
         System.out.println("\n===== CONSULTAR RESERVES PER TIPUS =====");
-        /*  TODO: Llistar reserves per tipus*/
+        /* Llistar reserves per tipus*/
+
+        /* Demanem el tipus d'habitació */
+        String tipus = seleccionarTipusHabitacio();
+
+        /* Comptem quantes reserves hi ha d'aquest tipus */
+        int comptador = 0;
+        for (Integer codi : reserves.keySet()) {
+            if (reserves.get(codi).get(0).equals(tipus)) {
+            comptador++;
+            }
+        }
+
+        /* Si no hi ha cap reserva d'aquest tipus */
+        if (comptador == 0) {
+            System.out.println("No hi ha reserves del tipus " + tipus);
+            return;
+        }
+
+        /* Creem un array amb la mida exacta */
+        int[] codis = new int[comptador];
+
+        /* Omplim l'array amb els codis */
+        int index = 0;
+        for (Integer codi : reserves.keySet()) {
+            if (reserves.get(codi).get(0).equals(tipus)) {
+                codis[index] = codi;
+                index++;
+         }
+        }
+
+        /* Cridem al mètode recursiu */
+        llistarReservesPerTipus(codis, tipus);
     }
 
     /**
      * Consulta i mostra en detall la informació d'una reserva.
      */
     public static void mostrarDadesReserva(int codi) {
-       /*  TODO: Imprimir tota la informació d'una reserva */
+       /*  Imprimir tota la informació d'una reserva */
+       
+       /* Recuperem la informació de la reserva a partir del codi */
+        ArrayList<String> info = reserves.get(codi);
+
+        // Per seguretat: si no existix, informem i eixim
+        if (info == null) {
+            System.out.println("No existeix cap reserva amb el codi " + codi);
+            return;
+        }
+
+        /* Posició 0 → tipus d'habitació */
+        String tipus = info.get(0);
+
+        /* Posició 1 → total (guardat com a text) */
+        String total = info.get(1);
+
+        /*  Mostrem dades  */
+        System.out.println("\n====== DADES DE LA RESERVA ======");
+        System.out.println("Codi: " + codi);
+        System.out.println("Tipus: " + tipus);
+        System.out.println("Total: " + total + " EUR");
+
+        /* Serveis (si n'hi ha, van des de la posició 2 fins al final)*/
+        if (info.size() <= 2) {
+            System.out.println("Serveis: cap");
+        } else {
+            System.out.print("Serveis: ");
+            for (int i = 2; i < info.size(); i++) {
+                System.out.print(info.get(i));
+
+            /* Posem coma entre serveis menys l´últim */
+            if (i < info.size() - 1) {
+                System.out.print(", ");
+            }
+            }
+            System.out.println(); // salt de línia final per a millorar visibilitat
+        }
     }
 
     // --------- MÈTODES AUXILIARS (PER MILLORAR LEGIBILITAT) ---------
