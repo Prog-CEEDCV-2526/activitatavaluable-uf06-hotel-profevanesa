@@ -273,6 +273,7 @@ public class App {
 
     do {
         System.out.println("\nServeis addicionals (0-4):");
+        System.out.println("0. Finalitzar");
         System.out.println("1. " + SERVEI_ESMORZAR + " (" 
             + preusServeis.get(SERVEI_ESMORZAR) + " EUR)");
         System.out.println("2. " + SERVEI_GIMNAS + " (" 
@@ -291,6 +292,7 @@ public class App {
             String servei = null;
             
             switch (opcio) {
+                case 0: return serveis; /* l´usuari vol finalitzar i eixim del métode directament */
                 case 1: servei = SERVEI_ESMORZAR; break;
                 case 2: servei = SERVEI_GIMNAS; break;
                 case 3: servei = SERVEI_SPA; break;
