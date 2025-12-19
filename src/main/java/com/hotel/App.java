@@ -409,13 +409,22 @@ public class App {
     public static void llistarReservesPerTipus(int[] codis, String tipus) {
          /* Implementar recursivitat*/
 
-        // si no queden codis, acabem
+        /*  si no queden codis, acabem */
         if (codis.length == 0) {
             return;
         }
 
-        /* Mostrem la reserva del primer codi */
-        mostrarDadesReserva(codis[0]);
+        /* Si el codi existeix (per seguretat) */
+        if (reserves.containsKey(codiActual)) {
+
+            /*  El tipus està guardat en la posició 0 de la reserva */
+            String tipusReserva = reserves.get(codiActual).get(0);
+
+            /* només mostrem si coincideix amb el tipus demanat*/
+            if (tipusReserva.equals(tipus)) {
+                mostrarDadesReserva(codiActual);
+            }
+         }
 
         /* Creem un nou array sense el primer element */
         int[] restaElements = new int[codis.length - 1];
